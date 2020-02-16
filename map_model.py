@@ -41,18 +41,22 @@ random.shuffle(airports)
 airports = random.choices(airports, k=int(len(airports) * percentage))
 airports.sort(key=lambda ap: ap.code)
 
+# Добавляю пути между аэропортами
 routes_file = open("databases/routes.dat", "r")
 new_airports = []
 with routes_file as file:
     for line in file.readlines():
         source = search_airport(airports, line.split(",")[2])
         destination = search_airport(airports, line.split(",")[4])
+        # Если путь соединяет два неучтённых аэропорта - его не учитываем
         if source is not None and destination is not None:
             if not new_airports.__contains__(source):
                 new_airports.append(source)
             if not new_airports.__contains__(destination):
                 new_airports.append(destination)
             routes.append((source, destination))
+# До этого все использованные аэропорты мы сохраняли в массив new_airports. Теперь мы заменим оригинальный массив
+# на него чтобы карта была более чистой
 airports = new_airports
 
 # Код для визуализации
