@@ -1,30 +1,32 @@
 import re
 
-class Airport:
-    id = 0
-    code = ""
+class City:
     name = ""
-    city = ""
     country = ""
     latitude = 0.0
     longtitude = 0.0
 
+    pop = 1.0
+    sus = 1.0
+    inf = 0.0
+    rec = 0.0
+
     def __init__(self,
-                 id: int,
-                 code: str,
                  name: str,
-                 city: str,
                  country: str,
                  latitude: float,
                  longtitude: float):
         self.id = id
-        self.code = code
         self.name = name
-        self.city = city
         self.country = country
         self.latitude = latitude
         self.longtitude = longtitude
+        self.airports = []
+        self.pop = 1.0
+        self.sus = 1.0
+        self.inf = 0.0
+        self.rec = 0.0
 
     def __str__(self) -> str:
-        return f"{self.id}. \"{self.name}\" (code {self.code}) in {self.city}, {self.country} ({self.longtitude}, {self.latitude})"
+        return f"City {self.name} of {self.country} ({self.longtitude}, {self.latitude}) with {len(self.airports)} airport(s)"
 
