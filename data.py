@@ -24,3 +24,7 @@ class Airport:
         self.country = country
         self.latitude = latitude
         self.longtitude = longtitude
+
+    def __str__(self) -> str:
+        return f"{self.id}. \"{self.name}\" (code {self.code}) in {self.city}, {self.country} ({self.longtitude}, {self.latitude})"
+
