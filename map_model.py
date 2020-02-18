@@ -1,5 +1,7 @@
 from data import *
+
 import matplotlib.pyplot as plt
+import networkx as nx
 import random
 
 
@@ -20,7 +22,7 @@ def search_airport(array, element, lo=0, hi=None):
 
 # Считываю аэропорты и пути между ними.
 # Количество аэропортов, которые будут взяты из общего числа
-percentage = 0.1
+percentage = 1
 airports = []  # type: list
 routes = []  # type: list
 airports_file = open("databases/airports.dat", "r")
@@ -61,19 +63,18 @@ airports = new_airports
 
 # Код для визуализации
 img = plt.imread("map.jpg")
-fig, ax = plt.subplots()
-ax.imshow(img, extent=(-180, 180, -90, 90))
+fig = plt.figure()  # type: plt.Figure
+ax_map = fig.add_subplot(111)
+ax_map.imshow(img, extent=(-180, 180, -90, 90))
 x = []
 y = []
-for ap in new_airports:
-    # if ap.id % 100 == 0:
-    x.append(ap.longtitude)
-    y.append(ap.latitude)
-plt.scatter(x, y, marker='.', c='r')
-
+graph = nx.DiGraph()
+ap_positions = {}
+for ap in airports:
+    graph.add_node(ap, color='r')
+    ap_positions[ap] = (ap.longtitude, ap.latitude)
 for r in routes:
-    x = [r[0].longtitude, r[1].longtitude]
-    y = [r[0].latitude, r[1].latitude]
-    plt.plot(x, y, c="lightsalmon", linewidth=1)
+    graph.add_edge(r[0], r[1], color='lightsalmon')
+nx.draw(graph, pos=ap_positions, node_size=1, width=1)
 
 plt.show()
