@@ -1,8 +1,32 @@
 from data import *
 
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 import networkx as nx
 import random
+
+
+def infection(graph: nx.Graph, city: City, ro: float, la: float, mi: float):
+    sus = city.old_sus
+    inf = city.old_inf
+    rec = city.old_rec
+
+    neigh_num = len(list(graph.neighbors(city)))
+    neigh_sus = 0.0
+    neigh_inf = 0.0
+    neigh_rec = 0.0
+    for c in graph.neighbors(city):
+        neigh_sus += c.old_sus
+        neigh_inf += c.old_inf
+        neigh_rec += c.old_rec
+    neigh_sus /= neigh_num
+    neigh_inf /= neigh_num
+    neigh_rec /= neigh_num
+
+    city.sus = (1 - mi) * (sus - ro * sus * inf) + mi * neigh_sus
+    city.inf = (1 - mi) * (inf + ro * sus * inf - la * inf) + mi * neigh_inf
+    city.rec = (1 - mi) * (rec + la * inf) + mi * neigh_rec
+
 
 # Считываю аэропорты и пути между ними.
 # Количество аэропортов, которые будут взяты из общего числа
@@ -64,23 +88,41 @@ with airports_file as file:
 
     # Задаём параметры болезни
     # Пока что - статично
-    ro = 0.2
+    ro = 0.5
     la = 0.1
     mu = 0.05
 
-    for country in sorted(countries.keys()):
-        print(f"{country}:\n")
-        for city in countries[country]:
-            print(f"\t{city.name}: sus={city.sus}, inf={city.inf}, rec={city.rec}\n")
+    cities['Conakry'].sus = 0.5
+    cities['Conakry'].inf = 0.5
 
     # Код для визуализации
     img = plt.imread("map.jpg")
     fig = plt.figure()  # type: plt.Figure
     ax_map = fig.add_subplot(111)
-    ax_map.imshow(img, extent=(-180, 180, -90, 90))
     ap_positions = {}
     for ap in graph.nodes.data():
         ap_positions[ap[0]] = (ap[0].longtitude, ap[0].latitude)
-    nx.draw_networkx_nodes(graph, pos=ap_positions, node_color=range(len(graph.nodes.data())), node_size=3,
-                           cmap=plt.get_cmap('plasma'))
+    ax_map.imshow(img, extent=(-180, 180, -90, 90))
+    nx.draw_networkx_nodes(graph, pos=ap_positions, node_color=[city[0].inf for city in graph.nodes.data()],
+                           node_size=3,
+                           cmap=plt.get_cmap('rainbow'), vmin=0.0, vmax=1.0)
+
+
+    def animate(i):
+        ax_map.clear()
+        ax_map.imshow(img, extent=(-180, 180, -90, 90))
+
+        for city in list(graph.nodes):
+            city.old_inf = city.inf
+            city.old_rec = city.rec
+            city.old_sus = city.sus
+        for city in graph.nodes.data():
+            infection(graph, city[0], ro, la, mu)
+
+        colors = [city[0].inf for city in graph.nodes.data()]
+        nx.draw_networkx_nodes(graph, pos=ap_positions, node_color=colors, node_size=3,
+                               cmap=plt.get_cmap('rainbow'), vmin=0.0, vmax=1.0)
+
+
+    animation = FuncAnimation(fig, animate, frames=200, interval=500, repeat=False)
     plt.show()
