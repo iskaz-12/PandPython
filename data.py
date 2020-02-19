@@ -6,7 +6,6 @@ class City:
     latitude = 0.0
     longtitude = 0.0
 
-    pop = 1.0
     sus = 1.0
     inf = 0.0
     rec = 0.0
@@ -25,7 +24,6 @@ class City:
         self.latitude = latitude
         self.longtitude = longtitude
         self.airports = []
-        self.pop = 1.0
         self.sus = 1.0
         self.inf = 0.0
         self.rec = 0.0
